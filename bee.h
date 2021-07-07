@@ -33,7 +33,7 @@ typedef struct bee_s {
                             } \
                             bee_return: bee->bee_.line = -1; return BEE_DONE \
 
-#define beeyeld()         do { \
+#define beeyeld           do { \
                             bee->bee_.line = __LINE__ ;  \
                             return BEE_READY; \
                             case __LINE__ : ; \

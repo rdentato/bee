@@ -7,7 +7,7 @@
 beedef(iter, int n;)
 {
    for (bee->n = 0; bee->n < 10; bee->n++) {
-     beeyeld();
+     beeyeld;
    }
    beereturn;
 }
