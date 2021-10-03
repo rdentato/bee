@@ -45,5 +45,6 @@ int main(int argc, char *argv[])
     while (beefly(counter)) {
       printf("%d\n",counter->n); 
     }
+    beefree(counter);
 }
 ```
