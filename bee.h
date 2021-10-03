@@ -1,6 +1,6 @@
 //  (C) by Remo Dentato (rdentato@gmail.com)
-//    This software is distributed under the terms of the MIT
-//    license: https://opensource.org/licenses/MIT
+//  SPDX-License-Identifier: MIT
+
 
 #ifndef BEE_H
 #define BEE_H
@@ -34,6 +34,8 @@ typedef struct bee_s {
                             bee_return: bee->bee_.line = -1; \
                             return BEE_DONE
 
+#define beestop             goto bee_return
+
 #define beeyeld           do { \
                             bee->bee_.line = __LINE__ ;  \
                             return BEE_READY; \
@@ -48,7 +50,7 @@ typedef struct bee_s {
 
 static inline int  beefly(void *bee)   {return bee? ((bee_t)bee)->fly(bee) : 0; }
 static inline int  beeready(void *bee) {return bee? ((bee_t)bee)->line >= 0 : 0; }
-static inline void beestop(void *bee)  {if (bee) ((bee_t)bee)->line = -1; }
+static inline void beekill(void *bee)  {if (bee) ((bee_t)bee)->line = -1; }
 static inline void beereset(void *bee) {if (bee) ((bee_t)bee)->line =  0; }
 
 #define beenew(bee_type) bee_new(sizeof(struct bee_type##_s), bee_fly_##bee_type)
