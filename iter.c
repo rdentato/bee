@@ -1,9 +1,9 @@
 //  (C) by Remo Dentato (rdentato@gmail.com)
-//    This software is distributed under the terms of the MIT
-//    license: https://opensource.org/licenses/MIT
+//  SPDX-License-Identifier: MIT
 
 #include "bee.h"
 
+// A simple iterator from 0 to 9
 beedef(iter, int n;)
 {
    for (bee->n = 0; bee->n < 10; bee->n++) {
@@ -14,8 +14,10 @@ beedef(iter, int n;)
 
 int main(int argc, char *argv[])
 {
-    iter counter = beenew(iter);
-    while (beefly(counter)) {
-      printf("%d\n",counter->n); 
+    iter nextitem = beenew(iter);
+    // Iterate over the items
+    while (beefly(nextitem)) {
+      printf("%d\n",nextitem->n); 
     }
+    beefree(nextitem);
 }
