@@ -1,9 +1,9 @@
 //  (C) by Remo Dentato (rdentato@gmail.com)
 //  SPDX-License-Identifier: MIT
+//  PackageVersion: 1.0.0
 
-
-#ifndef BEE_H
-#define BEE_H
+#ifndef BEE_H_VERSION
+#define BEE_H_VERSION 0x0100000F
 
 #include <stdio.h>
 #include <stdlib.h> 
