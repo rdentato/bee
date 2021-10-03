@@ -5,11 +5,13 @@ Simple and clean coroutines in C
 
 ## Reference
 
-  - `beedef(bee_type,...) { ... ; beereturn ;}` Defines a new type of *bee*. After the bee type name, there
-     is a list of variables that will be preserved across yelding. This variables can be accessed
-     as fields of the `bee` variable. The `beereturn` instruction is mandatory.
+  - `beedef(bee_type,...) { ... ; beereturn ;}` Defines a new type of *bee*. After the bee type name, there is a list of variables that will be preserved across yelding. This
+     variables can be accessed as fields of the `bee` variable. The
+     `beereturn` instruction is mandatory and can't be used anywhere but at the end of the bee definition.
 
-  - `void beeyeld()` Suspends the execution of the *bee*. The execution will resume from the next instruction.
+  - `beestop` Stops the execution of the bee. Next call to `beefly()` won't make it fly.
+
+  - `void beeyeld` Suspends the execution of the *bee*. The execution will resume from the next instruction.
 
   - `void beeyeldwhile(int expr)` Suspends the execution of the bee for as long as the expr is true. The execution will resume from the next instruction.
 
@@ -17,7 +19,8 @@ Simple and clean coroutines in C
 
   - `int  beeready(void *bee)` Checks if the *bee* will really resume the execution or has completed its task.
 
-  - `void beestop(void *bee)` Stops the *bee* so that next time `beefly()` is called, it won't resume.
+  - `void beekill(void *bee)` Kills the *bee* so that next time `beefly()` is called, it won't resume.
+
   - `void beereset(void *bee)` Reset the *bee* so that next time `beefly()` is called, it will start from the beginning.
   - `void *beenew(bee_type)` Creates a new *bee* of the specified type. Remember that bees are pointer.
 
