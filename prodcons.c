@@ -62,14 +62,14 @@ void queinit(que_t *q) {q->fst = q->nxt = 0;}
   consumer interact. Using different sequence of letters you 
   can drive the behavior of the program.
 
-  For example, using a sequence of all 'D' will make the producer
-  consume the queue one element at the time, meaning that the queue
-  will become full and the consumer will have to slow down.
+  For example, using a sequence of all 'D' will make the consumer
+  process only one element at the time, meaning that the queue
+  will become full and the producer will have to slow down.
 
   Using a sequence of all 'S', will make the consumer trying to 
   get four character at the time but since the producer is limited to 
-  put only three characters at the time, it won't have enough 
-  charcters to read.
+  three characters at the time, it won't have enough 
+  characters to read.
 
   Play with different sequences to observe different behaviours.
 */
