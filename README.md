@@ -3,6 +3,8 @@
 
 Simple and clean coroutines in C
 
+(See the [article on DEV.to](https://dev.to/rdentato/coroutines-in-c-1-2-45ig) for more details).
+
 ## Reference
 
   - `beedef(bee_type,...) { ... ; beereturn ;}` Defines a new type of *bee*. After the bee type name, there is a list of variables that will be preserved across yelding. This
