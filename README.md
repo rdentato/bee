@@ -1,4 +1,4 @@
-[![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/rdentato/bee.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/rdentato/bee/context:cpp)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/rdentato/bee.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/rdentato/bee/alerts/) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/rdentato/bee.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/rdentato/bee/context:cpp)
 # bee
 
 Simple and clean coroutines in C
