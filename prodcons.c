@@ -40,7 +40,7 @@ void queinit(que_t *q) {q->fst = q->nxt = 0;}
 #define trace(...) fprintf(stderr,__VA_ARGS__)
 
 /*
-  Let's use bees to implement the classical scanario
+  Let's use bees to implement the classical scEnario
   with a producer and a consumer coupled with a queue.
 
    ╔══════════╗    ━━━━━┓    ╔══════════╗
@@ -122,7 +122,6 @@ beedef(consumer_bee, que_t *q;)
   trace("%22cCONS stops\n",' ');
   beereturn;
 }
-
 
 int main(int argc, char *argv[])
 {
