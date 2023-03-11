@@ -1,16 +1,27 @@
+#  (C) by Remo Dentato (rdentato@gmail.com)
+#  SPDX-License-Identifier: MIT
+
+
 CFLAGS=-O2 -Wall
 
-all: iter prodcons
+EXAMPLES=iter prodcons fib
 
-iter: iter.o
-	$(CC) -o iter iter.o
+OBJS=$(EXAMPLES:=.o)
 
-prodcons: prodcons.o
-	$(CC) -o prodcons prodcons.o
+# implicit rules
+MAKEFLAGS += --no-builtin-rules
 
-fib: fib.o
-	$(CC) -o fib fib.o
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+%: %.o
+	$(CC) $(CFLAGS) $< -o $*
+
+.PRECIOUS: %.o
+
+# targets
+
+all: $(EXAMPLES)
 
 clean:
-	rm -f iter iter.o
-	rm -f prodcons prodcons.o
+	rm -f $(EXAMPLES) $(OBJS)
