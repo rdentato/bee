@@ -29,6 +29,23 @@ Simple and clean coroutines in C
 
   - `void *beefree(void *bee)` Destrory the *bee* and free the associated memory. Returns NULL.
 
+  - `void beesleep(int ms)` Makes the bee unresponsive to fly for at least the next ms milliseconds. (See beehives)
+
+
+## Beehives
+  Beehives are simple scheduler for a group of bees. 
+
+  - `beehive_t beehivenew()` Creates a new beehive.
+   
+  - `beehive_t beehivefree(beehive_t hive)` Destrory the *beehive* and free the associated memory. Returns NULL.
+
+  - `int32_t beehiveadd(beehive_t hive, void *bee)` Adds a bee to the beehive. Returns the number of bees.
+  
+  - `clock_t beehivefly(beehive_t hive)` Send all the bees in the beehive fyling once. If one of the bees complete its task (i.e. returns `BEE_DONE`) it is removed from the hive and freed. Returns `BEEHIVE_DONE` if all the bees have completed their task or the next wake time (0 if any of the bees is not sleeping).
+
+  - `int beehiveswarm(beehive_t hive)` Repeatedly send all the bees flying until all the bees have completed their task. Returns `BEE_DONE`.
+
+
 ## example
 
 ``` C
