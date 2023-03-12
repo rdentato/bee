@@ -1,12 +1,9 @@
 #  (C) by Remo Dentato (rdentato@gmail.com)
 #  SPDX-License-Identifier: MIT
 
-
 CFLAGS=-O2 -Wall
 
-EXAMPLES=iter prodcons fib
-
-OBJS=$(EXAMPLES:=.o)
+EXAMPLES=iter prodcons fib iter_sleep prodcons_hive
 
 # implicit rules
 MAKEFLAGS += --no-builtin-rules
@@ -15,7 +12,7 @@ MAKEFLAGS += --no-builtin-rules
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %: %.o
-	$(CC) $(CFLAGS) $< -o $*
+	$(CC) $(CFLAGS) $< -o $* 
 
 .PRECIOUS: %.o
 
@@ -24,4 +21,4 @@ MAKEFLAGS += --no-builtin-rules
 all: $(EXAMPLES)
 
 clean:
-	rm -f $(EXAMPLES) $(OBJS)
+	rm -f $(EXAMPLES) $(EXAMPLES:=.exe) $(EXAMPLES:=.o)
