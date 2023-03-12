@@ -71,7 +71,7 @@ typedef struct bee_s {
                             bee->bee_.wake = 0; \
                           } while(0)
 
-static inline uint32_t  beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
+static inline clock_t   beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
 static inline int       beefly(void *bee)   {return bee? ((bee_t)bee)->fly(bee) : 0; }
 static inline int       beeready(void *bee) {return bee? ((bee_t)bee)->line >= 0 : 0; }
 static inline void      beekill(void *bee)  {if (bee) ((bee_t)bee)->line = -1; }
@@ -116,23 +116,26 @@ static inline beehive_t beehivenew() {
 }
 static inline beehive_t beehivefree(beehive_t hive) { free(hive); return NULL;}
 
-static inline int32_t beehiveadd(beehive_t hive, void *bee){
-  if (hive->count >= hive->size) {
-    void  **newhive;
-    int32_t newsize = (hive->size+2);
-    newsize += newsize / 2;
-    newsize += newsize & 1;
-    newhive = realloc(hive->bees,newsize*sizeof(void*));
-    if (newhive == NULL) return 0; 
-    hive->bees = newhive;
-    hive->size = newsize;
+static inline int32_t beehiveadd(beehive_t hive, void *bee)
+{
+  if (bee) {
+    if (hive->count >= hive->size) {
+      void  **newhive;
+      int32_t newsize = (hive->size+2);
+      newsize += newsize / 2;
+      newsize += newsize & 1;
+      newhive = realloc(hive->bees,newsize*sizeof(void*));
+      if (newhive == NULL) return 0; 
+      hive->bees = newhive;
+      hive->size = newsize;
+    }
+    hive->bees[hive->count] = bee;
+    hive->count++;
   }
-  hive->bees[hive->count] = bee;
-  hive->count++;
   return hive->count;
 }
 
-#define BEEHIVE_DONE UINT32_MAX
+#define BEEHIVE_DONE ((clock_t)-1)
 static inline clock_t beehivefly(beehive_t hive) {
 
   if (hive == NULL) return 0;

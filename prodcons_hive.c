@@ -158,5 +158,6 @@ int main(int argc, char *argv[])
   trace("Completed\n");
   
   beehivefree(hive);
-
+  
+  // prod and cons bees have already bneen freed within the hive.
 }
