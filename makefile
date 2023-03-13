@@ -3,7 +3,7 @@
 
 CFLAGS=-O2 -Wall
 
-EXAMPLES=iter prodcons fib iter_sleep prodcons_hive
+EXAMPLES=iter prodcons fib iter_sleep prodcons_hive beekill
 
 # implicit rules
 MAKEFLAGS += --no-builtin-rules

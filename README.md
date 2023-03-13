@@ -9,7 +9,7 @@ Simple and clean coroutines in C
 
   - `beedef(bee_type,...) { ... ; beereturn ;}` Defines a new type of *bee*. After the bee type name, there is a list of variables that will be preserved across yelding. This
      variables can be accessed as fields of the `bee` variable. The
-     `beereturn` instruction is mandatory and can't be used anywhere else than at the end of the bee definition.
+     `beereturn {...}` instruction is mandatory and can't be used anywhere else than at the end of the bee definition. The code at the end is a cleanup code that will be executed when the bee returns (or is killed);
 
   - `beestop` Stops the execution of the bee. Next call to `beefly()` won't make it fly.
 

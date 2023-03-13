@@ -41,11 +41,18 @@ typedef struct bee_s {
                             switch(bee->bee_.line) { \
                                 default: goto bee_return; \
                                 case  0: 
+/*
+// #define beereturn               } \
+//                             } \
+//                             bee_return: bee->bee_.line = -1; \
+//                             return BEE_DONE
+*/
 
 #define beereturn               } \
                             } \
-                            bee_return: bee->bee_.line = -1; \
-                            return BEE_DONE
+                            bee_return: \
+                            if (bee->bee_.line==-1 || bee->bee_.line == 0) return BEE_DONE; \
+                            else for (bee->bee_.line=0;;bee->bee_.line=-1) if (bee->bee_.line) return BEE_DONE ; else
 
 #define beestop             goto bee_return
 
@@ -74,8 +81,16 @@ typedef struct bee_s {
 static inline clock_t   beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
 static inline int       beefly(void *bee)   {return bee? ((bee_t)bee)->fly(bee) : 0; }
 static inline int       beeready(void *bee) {return bee? ((bee_t)bee)->line >= 0 : 0; }
-static inline void      beekill(void *bee)  {if (bee) ((bee_t)bee)->line = -1; }
 static inline void      beereset(void *bee) {if (bee) ((bee_t)bee)->line =  0; }
+
+static inline void      beekill(void *bee)
+{ 
+  if (bee) {
+    if (((bee_t)bee)->line == 0) { ((bee_t)bee)->line = -1; } // This bee never took off.
+    if (((bee_t)bee)->line > 0) { ((bee_t)bee)->line = -2; beefly((bee_t)bee); } // this bee was in flight!
+  }
+}
+
 
 #define beenew(bee_type) bee_new(sizeof(struct bee_type##_s), bee_fly_##bee_type)
 static inline void *bee_new(size_t size, int (*fly)())
@@ -89,8 +104,11 @@ static inline void *bee_new(size_t size, int (*fly)())
   return bee;
 }
 
-static inline void *beefree(void *bee) {
-  free(bee); return NULL;
+static inline void *beefree(void *bee) 
+{
+  beekill(bee);
+  free(bee); 
+  return NULL;
 }
 
 typedef struct beehive_s {
@@ -114,7 +132,14 @@ static inline beehive_t beehivenew() {
   }
   return hive;
 }
-static inline beehive_t beehivefree(beehive_t hive) { free(hive); return NULL;}
+static inline beehive_t beehivefree(beehive_t hive) 
+{
+  for (int i=0; i< hive->count; i++) {
+    beefree(hive->bees[i]);
+  }
+  free(hive); 
+  return NULL;
+}
 
 static inline int32_t beehiveadd(beehive_t hive, void *bee)
 {
