@@ -19,14 +19,19 @@ beedef(iter, int n; int id;)
 
 int main(int argc, char *argv[])
 {
+  int reset = 1;
     iter nxt1 = beenew(iter);
     iter nxt2 = beenew(iter);
 
     nxt1->id = 1;
     nxt2->id = 2;
+
+    beereset(nxt1);
+
     // Iterate over the items
     while (beefly(nxt1) | beefly(nxt2)) {
       if (nxt2->n == 5) beekill(nxt2);
+      if (reset && nxt1->n == 7) { beereset(nxt1); reset = 0;}
     }
     beefree(nxt1);
     beefree(nxt2);

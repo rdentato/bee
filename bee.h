@@ -81,7 +81,6 @@ typedef struct bee_s {
 static inline clock_t   beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
 static inline int       beefly(void *bee)   {return bee? ((bee_t)bee)->fly(bee) : 0; }
 static inline int       beeready(void *bee) {return bee? ((bee_t)bee)->line >= 0 : 0; }
-static inline void      beereset(void *bee) {if (bee) ((bee_t)bee)->line =  0; }
 
 static inline void      beekill(void *bee)
 { 
@@ -90,6 +89,8 @@ static inline void      beekill(void *bee)
     if (((bee_t)bee)->line > 0) { ((bee_t)bee)->line = -2; beefly((bee_t)bee); } // this bee was in flight!
   }
 }
+
+static inline void      beereset(void *bee) {if (bee) { beekill(bee); ((bee_t)bee)->line =  0; }}
 
 
 #define beenew(bee_type) bee_new(sizeof(struct bee_type##_s), bee_fly_##bee_type)

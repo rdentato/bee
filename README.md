@@ -32,7 +32,7 @@ Simple and clean coroutines in C
   
   - `void *beenew(bee_type)` Create a new *bee* of the specified type. Remember that bees are pointers.
 
-  - `void *beefree(void *bee)` Destrory the *bee* and free the associated memory. Returns NULL.
+  - `void *beefree(void *bee)` Destroy the *bee* and free the associated memory. Returns NULL.
 
   - `void beesleep(int ms)` Makes the bee unresponsive to fly for at least the next ms milliseconds. (See beehives)
 
