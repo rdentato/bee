@@ -7,12 +7,5 @@ MAKEFLAGS += --no-builtin-rules
 %:
 	cd examples; make $*
 
-.PRECIOUS: %.o
-
-# targets
-
 all:
 	cd examples; make all
-
-clean:
-	cd examples; make clean
