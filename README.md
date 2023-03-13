@@ -1,4 +1,9 @@
-[![Total alerts](https://img.shields.io/lgtm/alerts/g/rdentato/bee.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/rdentato/bee/alerts/) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/rdentato/bee.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/rdentato/bee/context:cpp)
+
+<p width="100%" style="align:center">
+<img height="150" src="https://github.com/rdentato/bee/releases/download/candidate/logo_512.png"> <br/>
+ 
+</p>
+
 # bee
 
 Simple and clean coroutines in C
