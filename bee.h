@@ -9,24 +9,41 @@
 #include <stdlib.h> 
 #include <stdint.h>
 #include <time.h>
-
-static inline void beewait(uint32_t ms)
-{
-  struct timespec ts;
-  ts.tv_sec = ms/1000;
-  ts.tv_nsec = (ms % 1000) * 1000;
-  nanosleep(&ts, NULL);
-}
+#include <errno.h>
 
 #define BEE_SLEEP 2
 #define BEE_READY 1
 #define BEE_DONE  0
 
-#define BEE_CLOCKSCALE (CLOCKS_PER_SEC / 1000)
+static inline void beewait(uint32_t ms)
+{
+  struct timespec ts;
+
+  ts.tv_sec = ms/1000;
+  ts.tv_nsec = (ms % 1000) * 1000;
+  nanosleep(&ts, NULL);
+  return;
+}
+
+static inline void beewakeat(uint32_t alm)
+{
+  uint32_t clk;
+  uint32_t wake;
+  struct timespec ts;
+  
+  clock_gettime(CLOCK_REALTIME,&ts); \
+  clk = (ts.tv_sec & 0x1FFFFF) * 1000 + (ts.tv_nsec / 1000000);
+
+  if (clk < alm) {
+    wake = alm-clk;
+    beewait(wake);
+  } 
+}
+
 
 typedef struct bee_s {
   int (*fly)();
-  clock_t wake;
+  uint32_t wake;
   int32_t line;
 } *bee_t;
 
@@ -69,16 +86,18 @@ typedef struct bee_s {
                           } while(0)
 
 #define beesleep(n)       do { \
+                            struct timespec ts;\
+                            clock_gettime(CLOCK_REALTIME,&ts); \
                             bee->bee_.line = __LINE__ ;  \
-                            bee->bee_.wake = clock();  \
-                            bee->bee_.wake += n * BEE_CLOCKSCALE;  \
+                            bee->bee_.wake = (ts.tv_sec & 0x1FFFFF) * 1000 + (ts.tv_nsec / 1000000) + n;  \
                             return BEE_READY; \
                             case __LINE__ : ; \
-                            if ((bee->bee_.wake > 0) && (clock() < bee->bee_.wake)) return BEE_SLEEP; \
+                            clock_gettime(CLOCK_REALTIME,&ts); \
+                            if ((bee->bee_.wake > 0) && ( ((ts.tv_sec & 0x1FFFFF) * 1000 + (ts.tv_nsec / 1000000)) < bee->bee_.wake)) return BEE_SLEEP; \
                             bee->bee_.wake = 0; \
                           } while(0)
 
-static inline clock_t   beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
+static inline uint32_t  beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
 static inline int       beefly(void *bee)   {return bee? ((bee_t)bee)->fly(bee) : 0; }
 static inline int       beeready(void *bee) {return bee? ((bee_t)bee)->line >= 0 : 0; }
 
@@ -91,7 +110,6 @@ static inline void      beekill(void *bee)
 }
 
 static inline void      beereset(void *bee) {if (bee) { beekill(bee); ((bee_t)bee)->line =  0; }}
-
 
 #define beenew(bee_type) bee_new(sizeof(struct bee_type##_s), bee_fly_##bee_type)
 static inline void *bee_new(size_t size, int (*fly)())
@@ -114,7 +132,7 @@ static inline void *beefree(void *bee)
 
 typedef struct beehive_s {
   void   **bees;
-  clock_t  wake;
+  uint32_t  wake;
   int32_t  count;
   int32_t  size;
 } *beehive_t;
@@ -161,8 +179,8 @@ static inline int32_t beehiveadd(beehive_t hive, void *bee)
   return hive->count;
 }
 
-#define BEEHIVE_DONE ((clock_t)-1)
-static inline clock_t beehivefly(beehive_t hive) {
+#define BEEHIVE_DONE ((uint32_t)-1)
+static inline uint32_t beehivefly(beehive_t hive) {
 
   if (hive == NULL) return 0;
 
@@ -192,17 +210,10 @@ static inline clock_t beehivefly(beehive_t hive) {
 
 static inline int beehiveswarm(beehive_t hive) 
 {
-  clock_t wake;
-  clock_t clk;
-  uint32_t w;
+  uint32_t wake;
 
   while ((wake = beehivefly(hive)) != BEEHIVE_DONE) {
-    clk = clock();
-    if (clk > wake) {
-      w =  (clk-wake);
-      w /= BEE_CLOCKSCALE;
-      beewait(w);
-    }
+    if (wake > 0) beewakeat(wake);
   }
   return BEE_DONE;
 }

@@ -20,12 +20,11 @@
   same using bee.
 */
 
-// bee->max is the upper limit 
-// bee->m is the fibonacci number
-// bee->n is to hold the previous number in the sequence
-
-beedef(fib_bee, unsigned long max; unsigned long m; unsigned long n;)
-{
+beedef( fib_bee, 
+  unsigned long max; // bee->max is the upper limit 
+  unsigned long m;   // bee->m is the fibonacci number
+  unsigned long n;   // bee->n is to hold the previous number in the sequence
+) {
   unsigned long tmp;
   bee->m = 1;
   bee->n = 1;

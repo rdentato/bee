@@ -15,10 +15,27 @@ beedef(iter, int n;)
 int main(int argc, char *argv[])
 {
     int res;
+    clock_t wake;
     iter nextitem = beenew(iter);
+
     // Iterate over the items
+    // Note that this is an active loop! It will consume lots of CPU.
+    // if you comment out the 'if' you'll see lots of prints when the 
+    // beefly() function will return BEE_SLEEP
     while ((res=beefly(nextitem))) {
-      if (res != BEE_SLEEP) printf("%d (%d)\n",nextitem->n,res); 
+      if (res != BEE_SLEEP) 
+        printf("%d (%d)\n",nextitem->n,res); 
     }
+ 
+    beereset(nextitem);
+
+    // This one uses beewakeat() to sleep enough time to allow the bee to wake up.
+    // Sleeping means that your CPU won't overheat :)
+    while ((res=beefly(nextitem))) {
+      wake=beesleeping(nextitem);
+      if ((wake > 0) ) beewakeat(wake);
+      printf("%d (%d)\n",nextitem->n,res); 
+    }
+
     beefree(nextitem);
 }
