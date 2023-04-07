@@ -1,7 +1,7 @@
 #  (C) by Remo Dentato (rdentato@gmail.com)
 #  SPDX-License-Identifier: MIT
 
-CFLAGS=-O2 -Wall -I..
+CFLAGS=-O2 -Wall -I.. -static
 
 EXAMPLES=iter prodcons fib iter_sleep prodcons_hive beekill
 

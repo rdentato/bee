@@ -5,9 +5,14 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "bee.h"
+#define BEE_MAIN
+#include "beehive.h"
 
 #define MAXITEM 16
+
+#ifdef BEE_MAIN 
+#else 
+#endif 
 
 // A simple implementation of a queue as a circular buffer
 typedef struct {

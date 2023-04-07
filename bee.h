@@ -8,43 +8,17 @@
 #include <stdio.h>
 #include <stdlib.h> 
 #include <stdint.h>
-#include <time.h>
 #include <errno.h>
+#include <time.h>
 
 #define BEE_SLEEP 2
 #define BEE_READY 1
 #define BEE_DONE  0
 
-static inline void beewait(uint32_t ms)
-{
-  struct timespec ts;
-
-  ts.tv_sec = ms/1000;
-  ts.tv_nsec = (ms % 1000) * 1000;
-  nanosleep(&ts, NULL);
-  return;
-}
-
-static inline void beewakeat(uint32_t alm)
-{
-  uint32_t clk;
-  uint32_t wake;
-  struct timespec ts;
-  
-  clock_gettime(CLOCK_REALTIME,&ts); \
-  clk = (ts.tv_sec & 0x1FFFFF) * 1000 + (ts.tv_nsec / 1000000);
-
-  if (clk < alm) {
-    wake = alm-clk;
-    beewait(wake);
-  } 
-}
-
-
 typedef struct bee_s {
   int (*fly)();
-  uint32_t wake;
   int32_t line;
+  uint32_t wake;
 } *bee_t;
 
 #define beedef(bee_type,...) \
@@ -58,12 +32,6 @@ typedef struct bee_s {
                             switch(bee->bee_.line) { \
                                 default: goto bee_return; \
                                 case  0: 
-/*
-// #define beereturn               } \
-//                             } \
-//                             bee_return: bee->bee_.line = -1; \
-//                             return BEE_DONE
-*/
 
 #define beereturn               } \
                             } \
@@ -85,19 +53,6 @@ typedef struct bee_s {
                             if (e) return BEE_READY; \
                           } while(0)
 
-#define beesleep(n)       do { \
-                            struct timespec ts;\
-                            clock_gettime(CLOCK_REALTIME,&ts); \
-                            bee->bee_.line = __LINE__ ;  \
-                            bee->bee_.wake = (ts.tv_sec & 0x1FFFFF) * 1000 + (ts.tv_nsec / 1000000) + n;  \
-                            return BEE_READY; \
-                            case __LINE__ : ; \
-                            clock_gettime(CLOCK_REALTIME,&ts); \
-                            if ((bee->bee_.wake > 0) && ( ((ts.tv_sec & 0x1FFFFF) * 1000 + (ts.tv_nsec / 1000000)) < bee->bee_.wake)) return BEE_SLEEP; \
-                            bee->bee_.wake = 0; \
-                          } while(0)
-
-static inline uint32_t  beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
 static inline int       beefly(void *bee)   {return bee? ((bee_t)bee)->fly(bee) : 0; }
 static inline int       beeready(void *bee) {return bee? ((bee_t)bee)->line >= 0 : 0; }
 
@@ -115,11 +70,12 @@ static inline void      beereset(void *bee) {if (bee) { beekill(bee); ((bee_t)be
 static inline void *bee_new(size_t size, int (*fly)())
 {
   bee_t bee = malloc(size); 
-  if (bee) {
-    bee->line = 0;
-    bee->fly  = fly;
-    bee->wake = 0;
+  if (bee) { 
+    bee->fly = fly;
+    bee->line = 0;  
+    bee->wake = 0; 
   }
+
   return bee;
 }
 
@@ -130,92 +86,72 @@ static inline void *beefree(void *bee)
   return NULL;
 }
 
-typedef struct beehive_s {
-  void   **bees;
-  uint32_t  wake;
-  int32_t  count;
-  int32_t  size;
-} *beehive_t;
 
-void     *beehivewake(beehive_t hive);
-int32_t   beehivestop(beehive_t hive);
-void     *beehiveget(beehive_t hive);
+#define beesleep(n)       do { \
+                            bee->bee_.line = __LINE__ ;  \
+                            bee->bee_.wake = bee_time() + ((n)/10);  \
+                            return BEE_READY; \
+                            case __LINE__ : ; \
+                            if ((bee->bee_.wake > 0) && ( bee_time() < bee->bee_.wake)) return BEE_SLEEP; \
+                            bee->bee_.wake = 0; \
+                          } while(0)
 
-static inline beehive_t beehivenew() { 
-  beehive_t hive = malloc(sizeof(struct beehive_s));
-  if (hive) {
-    hive->bees  = NULL;
-    hive->count = 0;
-    hive->wake  = 0;
-    hive->size  = 0;
-  }
-  return hive;
-}
-static inline beehive_t beehivefree(beehive_t hive) 
+
+static inline uint32_t  beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
+
+void bee_wakeat(uint32_t alm);
+
+#define beewaitfor(b) bee_wakeat(beesleeping(b))
+
+extern struct timespec bee_epoch;
+uint32_t bee_time();
+
+#ifdef BEE_MAIN
+
+struct timespec bee_epoch = {0};
+
+// returns the time in hundrends of seconds from an epoch
+uint32_t bee_time()
 {
-  for (int i=0; i< hive->count; i++) {
-    beefree(hive->bees[i]);
+  uint32_t t = 0;
+  struct timespec ts;
+  if (bee_epoch.tv_sec == 0) {
+    clock_gettime(CLOCK_REALTIME,&bee_epoch);
   }
-  free(hive); 
-  return NULL;
+  else {
+    clock_gettime(CLOCK_REALTIME,&ts);
+    t  = (ts.tv_sec  - bee_epoch.tv_sec)   * 100 
+       + (ts.tv_nsec - bee_epoch.tv_nsec) / 10000000;
+  }
+
+  return t;
 }
 
-static inline int32_t beehiveadd(beehive_t hive, void *bee)
+static void bee_delay(uint32_t hs) // wait for hundreds of seconds
 {
-  if (bee) {
-    if (hive->count >= hive->size) {
-      void  **newhive;
-      int32_t newsize = (hive->size+2);
-      newsize += newsize / 2;
-      newsize += newsize & 1;
-      newhive = realloc(hive->bees,newsize*sizeof(void*));
-      if (newhive == NULL) return 0; 
-      hive->bees = newhive;
-      hive->size = newsize;
-    }
-    hive->bees[hive->count] = bee;
-    hive->count++;
-  }
-  return hive->count;
+  struct timespec ts;
+
+  ts.tv_sec = hs / 100;
+  ts.tv_nsec = (hs % 100) * 10000000;
+  nanosleep(&ts, NULL);
+  return;
 }
 
-#define BEEHIVE_DONE ((uint32_t)-1)
-static inline uint32_t beehivefly(beehive_t hive) {
-
-  if (hive == NULL) return 0;
-
-  int32_t i;
-  int res;
-  bee_t b;
-  
-  i = 0;
-  hive->wake = UINT32_MAX;
-
-  while (i < hive->count) {
-    b = hive->bees[i];
-    res = beefly(b);
-    if (res == BEE_DONE) {
-      beefree(b);
-      hive->bees[i] = hive->bees[hive->count-1];
-      hive->count--;
-    }
-    else {
-      if (b->wake < hive->wake) hive->wake = b->wake;
-      i++;
-    }
-  }
-
-  return (hive->count == 0) ? BEEHIVE_DONE : hive->wake;
-}
-
-static inline int beehiveswarm(beehive_t hive) 
+void bee_wakeat(uint32_t alm)
 {
+  uint32_t clk;
   uint32_t wake;
+  
+  if (alm == 0) return;
 
-  while ((wake = beehivefly(hive)) != BEEHIVE_DONE) {
-    if (wake > 0) beewakeat(wake);
-  }
-  return BEE_DONE;
+  clk = bee_time();
+  if (clk < alm) {
+    wake = alm-clk;
+    bee_delay(wake);
+  } 
 }
 
-#endif
+
+#endif // BEE_MAIN
+
+#endif // BEE_H_VERSION
