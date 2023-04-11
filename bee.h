@@ -21,6 +21,9 @@ typedef struct bee_s {
   uint32_t wake;
 } *bee_t;
 
+#define beeref(bee_type) struct bee_type##_s *
+
+
 #define beedef(bee_type,...) \
                           typedef struct bee_type##_s { \
                             struct bee_s bee_; \
@@ -36,16 +39,19 @@ typedef struct bee_s {
 #define beereturn               } \
                             } \
                             bee_return: \
-                            if (bee->bee_.line==-1 || bee->bee_.line == 0) return BEE_DONE; \
-                            else for (bee->bee_.line=0;;bee->bee_.line=-1) if (bee->bee_.line) return BEE_DONE ; else
+                            if (bee->bee_.line==-1 || bee->bee_.line == 0) return (bee->bee_.line = -1,BEE_DONE) ; \
+                            else for (bee->bee_.line=0;;bee->bee_.line=-1) if (bee->bee_.line) return BEE_DONE; else
 
 #define beestop             goto bee_return
 
-#define beeyeld           do { \
+#define beeyeldto(b)      do { \
                             bee->bee_.line = __LINE__ ;  \
+                            bee_next = (bee_t)b; \
                             return BEE_READY; \
                             case __LINE__ : ; \
                           } while(0)
+
+#define beeyeld           beeyeldto(NULL)
 
 #define beeyeldwhile(e)   do { \
                             bee->bee_.line = __LINE__ ;  \
@@ -53,38 +59,16 @@ typedef struct bee_s {
                             if (e) return BEE_READY; \
                           } while(0)
 
-static inline int       beefly(void *bee)   {return bee? ((bee_t)bee)->fly(bee) : 0; }
-static inline int       beeready(void *bee) {return bee? ((bee_t)bee)->line >= 0 : 0; }
+extern bee_t bee_next;
 
-static inline void      beekill(void *bee)
-{ 
-  if (bee) {
-    if (((bee_t)bee)->line == 0) { ((bee_t)bee)->line = -1; } // This bee never took off.
-    if (((bee_t)bee)->line > 0) { ((bee_t)bee)->line = -2; beefly((bee_t)bee); } // this bee was in flight!
-  }
-}
-
-static inline void      beereset(void *bee) {if (bee) { beekill(bee); ((bee_t)bee)->line =  0; }}
+int  beefly(void *bee);
+int  beeready(void *bee);
+void beekill(void *bee);
+void beereset(void *bee);
 
 #define beenew(bee_type) bee_new(sizeof(struct bee_type##_s), bee_fly_##bee_type)
-static inline void *bee_new(size_t size, int (*fly)())
-{
-  bee_t bee = malloc(size); 
-  if (bee) { 
-    bee->fly = fly;
-    bee->line = 0;  
-    bee->wake = 0; 
-  }
-
-  return bee;
-}
-
-static inline void *beefree(void *bee) 
-{
-  beekill(bee);
-  free(bee); 
-  return NULL;
-}
+void *bee_new(size_t size, int (*fly)());
+void *beefree(void *bee);
 
 
 #define beesleep(n)       do { \
@@ -97,18 +81,71 @@ static inline void *beefree(void *bee)
                           } while(0)
 
 
-static inline uint32_t  beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
+uint32_t  beesleeping(void *bee);
 
 void bee_wakeat(uint32_t alm);
 
 #define beewaitfor(b) bee_wakeat(beesleeping(b))
 
 extern struct timespec bee_epoch;
+
 uint32_t bee_time();
+
+// --------------------------------------------
 
 #ifdef BEE_MAIN
 
+bee_t bee_next = NULL;
+
 struct timespec bee_epoch = {0};
+
+int beefly(void *bee)
+{
+  int ret = BEE_DONE;
+  bee_next = bee;
+  while(bee_next) {
+    bee = bee_next; bee_next = NULL;
+    ret = ((bee_t)bee)->fly(bee);
+    //fprintf(stderr,"FLY: %d ln: %d\n",ret,((bee_t)bee)->line);
+  }
+  return ret;
+}
+
+
+int beeready(void *bee) {return bee? ((bee_t)bee)->line >= 0 : 0; }
+
+void beekill(void *bee)
+{ 
+  if (bee) {
+    if (((bee_t)bee)->line == 0) { ((bee_t)bee)->line = -1; } // This bee never took off.
+    if (((bee_t)bee)->line > 0) { ((bee_t)bee)->line = -2; beefly((bee_t)bee); } // this bee was in flight!
+  }
+}
+
+void beereset(void *bee) {if (bee) { beekill(bee); ((bee_t)bee)->line =  0; }}
+
+void *bee_new(size_t size, int (*fly)())
+{
+  bee_t bee = malloc(size); 
+  if (bee) { 
+    bee->fly = fly;
+    bee->line = 0;  
+    bee->wake = 0; 
+  }
+
+  return bee;
+}
+
+void *beefree(void *bee) 
+{
+  beekill(bee);
+  free(bee); 
+  return NULL;
+}
+
+uint32_t  beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
+
+// TIME 
 
 // returns the time in hundrends of seconds from an epoch
 uint32_t bee_time()
@@ -150,7 +187,6 @@ void bee_wakeat(uint32_t alm)
     bee_delay(wake);
   } 
 }
-
 
 #endif // BEE_MAIN
 

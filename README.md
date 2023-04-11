@@ -17,9 +17,13 @@ Define `BEE_MAIN` before including `bee.h` in one (and only one of) the source f
      variables can be accessed as fields of the `bee` variable. The `beereturn {...}` instruction is mandatory and can't be used anywhere else
      than at the end of the bee definition. The code at the end is a cleanup code that will be executed when the bee returns (or is killed);
 
+  - `beeref(bee_type) beename` Reference a bee that will be defined later (forward declaration). Useful with `beeyeldto()`.
+
   - `beestop` Stops the execution of the bee. Next call to `beefly()` won't make it fly.
 
   - `void beeyeld` Suspends the execution of the *bee*. The execution will resume from the next instruction.
+
+  - `void beeyeldto(bee_t next)` Suspends the execution of the current *bee* and resume the bee *next*.
 
   - `void beeyeldwhile(int expr)` Suspends the execution of the bee for as long as the expr is true. If the bee is resumed and the expression is still true, it will yeld, otherwise the execution will resume from the next instruction.
 
@@ -35,7 +39,7 @@ Define `BEE_MAIN` before including `bee.h` in one (and only one of) the source f
 
   - `void *beefree(void *bee)` Destroy the *bee* and free the associated memory. Returns NULL.
 
-  - `void beesleep(int ms)` Makes the bee unresponsive to fly for at least the next ms milliseconds. Note that due to the way bee sleeping is handled, applications that use bees can't run for more than one year without being reset. 
+  - `void beesleep(int ms)` Makes the bee unresponsive to fly for at least the next ms milliseconds. Note that due to the way bee sleeping is handled, max resolion is in hundreds of seconds (not milliseconds) and applications that use bees can't run for more than one year without being reset. 
 
   - `void beewaitfor(void *bee)` Suspend the process (with `nanoleep()`) to give enough time to the specified bee to awake.
 
