@@ -3,7 +3,8 @@
 
 CFLAGS=-O2 -Wall -I.. -static
 
-EXAMPLES=iter prodcons fib iter_sleep prodcons_hive beekill
+EXAMPLES_SRC=$(wildcard *.c)
+EXAMPLES=$(EXAMPLES_SRC:.c=)
 
 # implicit rules
 MAKEFLAGS += --no-builtin-rules

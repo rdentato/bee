@@ -20,8 +20,6 @@ int main(int argc, char *argv[])
     iter nxt = beenew(iter);
 
     // Note that this is an active loop! It will consume lots of CPU.
-    // if you comment out the 'if' you'll see lots of prints when the 
-    // beefly() function will return BEE_SLEEP
     while ((res=beefly(nxt))) ;
  
     beereset(nxt); // reuse the same bee

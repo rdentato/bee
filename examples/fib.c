@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+
+#define BEE_MAIN
 #include "bee.h"
 
 #define MAX_FIB 1000000000

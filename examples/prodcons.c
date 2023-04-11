@@ -4,38 +4,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+
+#define BEE_MAIN
 #include "bee.h"
 
-#define MAXITEM 16
-
-// A simple implementation of a queue as a circular buffer
-typedef struct {
-  int fst;
-  int nxt;
-  char que[MAXITEM];  
-} que_t;
-
-int queisfull(que_t *q)  {return q? (((q->nxt+1) % MAXITEM) == q->fst) : 1;}
-int queisempty(que_t *q) {return q? (q->nxt == q->fst) : 1; }
-int quelen(que_t *q)     {return (q->nxt - q->fst + MAXITEM) % MAXITEM;}
-
-char queput(que_t *q, char c)
-{
-  if (queisfull(q)) return '\0';
-  q->que[q->nxt] = c;
-  q->nxt = (q->nxt + 1) % MAXITEM;
-  return c;
-}
-
-char queget(que_t *q)
-{
-  if (queisempty(q)) return '\0';
-  char c = q->que[q->fst];
-  q->fst = (q->fst + 1) % MAXITEM;
-  return c;
-}
-
-void queinit(que_t *q) {q->fst = q->nxt = 0;}
+#define QUE_MAXITEM 16
+#include "que.h"
 
 #define trace(...) fprintf(stderr,__VA_ARGS__)
 
@@ -130,6 +104,7 @@ int main(int argc, char *argv[])
   producer_bee prod = beenew(producer_bee);
   consumer_bee cons = beenew(consumer_bee);
   
+  queinit(&q);
   // Make prod and cons share the same queue
   prod->q = &q;
   cons->q = &q;

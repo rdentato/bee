@@ -1,6 +1,7 @@
 //  (C) by Remo Dentato (rdentato@gmail.com)
 //  SPDX-License-Identifier: MIT
 
+#define BEE_MAIN
 #include "bee.h"
 
 // A simple iterator from 0 to 9
