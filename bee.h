@@ -21,10 +21,36 @@ typedef struct bee_s {
   uint32_t wake;
 } *bee_t;
 
-#define beeref(bee_type) struct bee_type##_s *
 
 
-#define beedef(bee_type,...) \
+#define bee_cnt(b1,b2,b3,b4,b5,b6,b7,b8,b9,bA,bB,bC,bD,bE,bF,bN, ...) bN
+#define bee_argn(...)  bee_cnt(__VA_ARGS__, F,E,D,C,B,A,9,8, 7, 6, 5, 4, 3, 2, 1, 0)
+#define bee_cat0(x,y)  x ## y
+#define bee_cat(x,y)   bee_cat0(x,y)
+
+#define bee_def(bee_f,...) bee_cat(bee_f, bee_argn(__VA_ARGS__))(__VA_ARGS__)
+
+
+#define beedef(...) bee_def(beedef,__VA_ARGS__)
+
+#define beedef1(bee_type) struct bee_type##_s *
+
+#define beedef2(...) beedef_(__VA_ARGS__)
+#define beedef3(...) beedef_(__VA_ARGS__)
+#define beedef4(...) beedef_(__VA_ARGS__)
+#define beedef5(...) beedef_(__VA_ARGS__)
+#define beedef6(...) beedef_(__VA_ARGS__)
+#define beedef7(...) beedef_(__VA_ARGS__)
+#define beedef8(...) beedef_(__VA_ARGS__)
+#define beedef9(...) beedef_(__VA_ARGS__)
+#define beedefA(...) beedef_(__VA_ARGS__)
+#define beedefB(...) beedef_(__VA_ARGS__)
+#define beedefC(...) beedef_(__VA_ARGS__)
+#define beedefD(...) beedef_(__VA_ARGS__)
+#define beedefE(...) beedef_(__VA_ARGS__)
+#define beedefF(...) beedef_(__VA_ARGS__)
+
+#define beedef_(bee_type,...) \
                           typedef struct bee_type##_s { \
                             struct bee_s bee_; \
                             __VA_ARGS__ \

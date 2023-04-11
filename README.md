@@ -17,7 +17,7 @@ Define `BEE_MAIN` before including `bee.h` in one (and only one of) the source f
      variables can be accessed as fields of the `bee` variable. The `beereturn {...}` instruction is mandatory and can't be used anywhere else
      than at the end of the bee definition. The code at the end is a cleanup code that will be executed when the bee returns (or is killed);
 
-  - `beeref(bee_type) beename` Reference a bee that will be defined later (forward declaration). Useful with `beeyeldto()`.
+  - `beedef(bee_type) beename` This form of `beedef()` can be used to declare bee varibles that will be defined later (forward declaration). Useful with `beeyeldto()`.
 
   - `beestop` Stops the execution of the bee. Next call to `beefly()` won't make it fly.
 

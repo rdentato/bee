@@ -7,8 +7,8 @@
 #define QUE_MAXITEM 16
 #include "que.h"
 
-beeref(gen) generator;
-beeref(dbl) doubler;
+beedef(gen) generator;
+beedef(dbl) doubler;
 
 beedef(gen, int n; que_t *q;)
 {
