@@ -57,7 +57,8 @@ beedef(producer_bee, que_t *q;)
     c = 'A';
     for (int k = 0; c != 'Z' && !queisfull(bee->q) && k < 3 ; k++ ) {
       c = fgetc(stdin);
-      if (c == EOF || isspace(c)) c = 'Z';
+      if (c == EOF || isspace(c)) 
+        c = 'Z';
       trace("PROD puts %c (0x%02X)\n",c,c);
       queput(bee->q, (char)c);
     }
@@ -80,7 +81,7 @@ beedef(consumer_bee, que_t *q;)
   int c,n;
   while (1) {
     c = queget(bee->q); // c will be '\0' if the queue is empty
-    n = (c & 0x03); // decide how many characters to consume
+    n = (c & 0x02); // decide how many characters to consume
     while (c) {
       trace("%22cCONS gets %c (0x%02X)\n",' ',c,c);
       if (strchr("AEIOU",c)) c = tolower(c);

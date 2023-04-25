@@ -10,7 +10,15 @@
 #include <stdint.h>
 #include <errno.h>
 #include <time.h>
+#include <string.h>
 
+#ifdef _MSC_VER
+  #define BEE_THREAD __declspec( thread )
+#else
+  #define BEE_THREAD __thread
+#endif
+
+#define BEE_WAIT  3
 #define BEE_SLEEP 2
 #define BEE_READY 1
 #define BEE_DONE  0
@@ -18,39 +26,23 @@
 typedef struct bee_s {
   int (*fly)();
   int32_t line;
-  uint32_t wake;
+  int32_t aux;
 } *bee_t;
 
-
-
-#define bee_cnt(b1,b2,b3,b4,b5,b6,b7,b8,b9,bA,bB,bC,bD,bE,bF,bN, ...) bN
-#define bee_argn(...)  bee_cnt(__VA_ARGS__, F,E,D,C,B,A,9,8, 7, 6, 5, 4, 3, 2, 1, 0)
+// To define varargs functions
+#define bee_cnt(b1,b2,b3,b4,bN, ...) bN
+#define bee_argn(...)  bee_cnt(__VA_ARGS__, 4, 3, 2, 1, 0)
 #define bee_cat0(x,y)  x ## y
 #define bee_cat(x,y)   bee_cat0(x,y)
 
-#define bee_def(bee_f,...) bee_cat(bee_f, bee_argn(__VA_ARGS__))(__VA_ARGS__)
 
+#define bee_def(bee_f,...) bee_cat(bee_f, bee_argn(__VA_ARGS__))(__VA_ARGS__)
 
 #define beedef(...) bee_def(beedef,__VA_ARGS__)
 
 #define beedef1(bee_type) struct bee_type##_s *
 
-#define beedef2(...) beedef_(__VA_ARGS__)
-#define beedef3(...) beedef_(__VA_ARGS__)
-#define beedef4(...) beedef_(__VA_ARGS__)
-#define beedef5(...) beedef_(__VA_ARGS__)
-#define beedef6(...) beedef_(__VA_ARGS__)
-#define beedef7(...) beedef_(__VA_ARGS__)
-#define beedef8(...) beedef_(__VA_ARGS__)
-#define beedef9(...) beedef_(__VA_ARGS__)
-#define beedefA(...) beedef_(__VA_ARGS__)
-#define beedefB(...) beedef_(__VA_ARGS__)
-#define beedefC(...) beedef_(__VA_ARGS__)
-#define beedefD(...) beedef_(__VA_ARGS__)
-#define beedefE(...) beedef_(__VA_ARGS__)
-#define beedefF(...) beedef_(__VA_ARGS__)
-
-#define beedef_(bee_type,...) \
+#define beedef2(bee_type,...) \
                           typedef struct bee_type##_s { \
                             struct bee_s bee_; \
                             __VA_ARGS__ \
@@ -85,7 +77,14 @@ typedef struct bee_s {
                             if (e) return BEE_READY; \
                           } while(0)
 
-extern bee_t bee_next;
+#define beeloopuntil(e) case __LINE__ :  \
+                        for (int bee_n=2; ;bee_n--) \
+                          if (bee_n == 0) {bee->bee_.line = __LINE__; return BEE_READY; }\
+                          else if (bee_n == 1) {if (e) { break; }}\
+                          else 
+  
+
+extern BEE_THREAD bee_t bee_next;
 
 int  beefly(void *bee);
 int  beeready(void *bee);
@@ -96,32 +95,31 @@ void beereset(void *bee);
 void *bee_new(size_t size, int (*fly)());
 void *beefree(void *bee);
 
-
 #define beesleep(n)       do { \
                             bee->bee_.line = __LINE__ ;  \
-                            bee->bee_.wake = bee_time() + ((n)/10);  \
+                            bee->bee_.aux = bee_time() + ((n)/10);  \
                             return BEE_READY; \
                             case __LINE__ : ; \
-                            if ((bee->bee_.wake > 0) && ( bee_time() < bee->bee_.wake)) return BEE_SLEEP; \
-                            bee->bee_.wake = 0; \
+                            if ((bee->bee_.aux > 0) && ( bee_time() < bee->bee_.aux)) return BEE_SLEEP; \
+                            bee->bee_.aux = 0; \
                           } while(0)
 
 
-uint32_t  beesleeping(void *bee);
+int32_t beesleeping(void *bee);
+#define beesync(b) bee_wakeat(beesleeping(b))
 
 void bee_wakeat(uint32_t alm);
-
-#define beewaitfor(b) bee_wakeat(beesleeping(b))
 
 extern struct timespec bee_epoch;
 
 uint32_t bee_time();
 
+
 // --------------------------------------------
 
 #ifdef BEE_MAIN
 
-bee_t bee_next = NULL;
+BEE_THREAD bee_t bee_next = NULL;
 
 struct timespec bee_epoch = {0};
 
@@ -137,7 +135,6 @@ int beefly(void *bee)
   return ret;
 }
 
-
 int beeready(void *bee) {return bee? ((bee_t)bee)->line >= 0 : 0; }
 
 void beekill(void *bee)
@@ -152,11 +149,10 @@ void beereset(void *bee) {if (bee) { beekill(bee); ((bee_t)bee)->line =  0; }}
 
 void *bee_new(size_t size, int (*fly)())
 {
-  bee_t bee = malloc(size); 
+  bee_t bee = calloc(1,size); 
   if (bee) { 
     bee->fly = fly;
     bee->line = 0;  
-    bee->wake = 0; 
   }
 
   return bee;
@@ -169,7 +165,6 @@ void *beefree(void *bee)
   return NULL;
 }
 
-uint32_t  beesleeping(void *bee) {return bee? ((bee_t)bee)->wake : 0; }
 
 // TIME 
 
@@ -212,6 +207,18 @@ void bee_wakeat(uint32_t alm)
     wake = alm-clk;
     bee_delay(wake);
   } 
+}
+
+int32_t beesleeping(void *bee)
+{ 
+  if (bee!=NULL && ((bee_t)bee)->aux >= 0) return ((bee_t)bee)->aux;
+  return 0;
+}
+
+int32_t beewaiting(void *bee)
+{ 
+  if (bee!=NULL && ((bee_t)bee)->aux < 0) return -(((bee_t)bee)->aux+1);
+  return -1;
 }
 
 #endif // BEE_MAIN

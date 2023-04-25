@@ -95,7 +95,7 @@ beedef(consumer_bee, que_t *q;)
       beesleep(1500);
     }
     else {
-      n = (c & 0x03); // decide how many characters to consume
+      n = (c & 0x02); // decide how many characters to consume
       while (c) {
         trace("%22cCONS gets %c (0x%02X)\n",' ',c,c);
         if (strchr("AEIOU",c)) c = tolower(c);

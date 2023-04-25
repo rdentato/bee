@@ -9,7 +9,7 @@ beedef(iter, int n;)
 {
    for (bee->n = 0; bee->n < 10; bee->n++) {
      fprintf(stderr,"%d\n",bee->n);
-     beesleep(900);
+     beesleep(1200);
    }
    beereturn;
 }
@@ -24,10 +24,10 @@ int main(int argc, char *argv[])
  
     beereset(nxt); // reuse the same bee
 
-    // This one uses beewaitfor() to sleep enough time to allow the bee to wake up.
+    // This one uses beesync() to sleep enough time to allow the bee to wake up.
     // Sleeping means that your CPU won't overheat :)
     while ((res=beefly(nxt))) {
-      if (res == BEE_SLEEP) beewaitfor(nxt);
+      if (res == BEE_SLEEP) beesync(nxt);
     }
 
     beefree(nxt);

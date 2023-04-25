@@ -15,7 +15,7 @@
 
 typedef struct beehive_s {
   void   **bees;
-  uint32_t  wake;
+  int32_t  wake;
   int32_t  count;
   int32_t  size;
 } *beehive_t;
@@ -72,7 +72,7 @@ static inline uint32_t beehivefly(beehive_t hive) {
   bee_t b;
   
   i = 0;
-  hive->wake = UINT32_MAX;
+  hive->wake = INT32_MAX;
 
   while (i < hive->count) {
     b = hive->bees[i];
@@ -83,7 +83,7 @@ static inline uint32_t beehivefly(beehive_t hive) {
       hive->count--;
     }
     else {
-      if (b->wake < hive->wake) hive->wake = b->wake;
+      if (b->aux < hive->wake) hive->wake = b->aux;
       i++;
     }
   }

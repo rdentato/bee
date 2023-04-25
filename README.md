@@ -39,7 +39,7 @@ Define `BEE_MAIN` before including `bee.h` in one (and only one of) the source f
 
   - `void *beefree(void *bee)` Destroy the *bee* and free the associated memory. Returns NULL.
 
-  - `void beesleep(int ms)` Makes the bee unresponsive to fly for at least the next ms milliseconds. Note that due to the way bee sleeping is handled, max resolion is in hundreds of seconds (not milliseconds) and applications that use bees can't run for more than one year without being reset. 
+  - `void beesleep(int ms)` Makes the bee unresponsive to fly for at least the next ms milliseconds. Note that due to the way bee sleeping is handled, max resolion is in hundreds of seconds (not milliseconds) and applications that use bees can't run for more than 8 months without being reset. 
 
   - `void beewaitfor(void *bee)` Suspend the process (with `nanoleep()`) to give enough time to the specified bee to awake.
 
