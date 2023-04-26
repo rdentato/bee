@@ -202,8 +202,8 @@ Trying to resume a coroutine that has already completed its execution will simpl
 
 There are two general strategies for scheduling that are commonly described as:
   
-   - *asymmetric coroutines*, that rely on a central scheduler or dispatcher to determine which coroutine to execute next.
-   - *symmetric coroutines*, where coroutines directly transfer control to one another;
+  - *asymmetric coroutines*, that rely on a central scheduler or dispatcher to determine which coroutine to execute next.
+  - *symmetric coroutines*, where coroutines directly transfer control to one another;
 
 The `bee` library offers function to implement both:
 
@@ -268,11 +268,11 @@ Sometimes, a coroutine must wait for an event to happen before being able to con
 
 There are several function to help you control the execution of coroutines more precisely, implementing complex behaviors such as conditional yielding, sleeping, and synchronizing coroutines:
 
-    - `beeyeldwhile(e)`: this macro will evaluate the expression `e` and yelds if it is `true`. When the coroutine will be resumed, the expression is evaluated again and, if it is still true, it will yeld again. The execution will move to the next line only when the expression `e` will evaluate to `false`;
-    - `beeloopuntil(e)`: this macro will execute its body once, then will evaluate the expression `e`; if it is `true` the execution will move to the next line, otherwise the coroutine will yeld. When the coroutine will be resumed, the body will be executed again and the `e` expression will be re-evaluated, yelding if it is still `false`.
-    - `beesleep(n)`: will make the coroutine sleep for n milliseconds. The coroutine will yeld and if it will be resumed, will yeld again until the specified amount of time passed. See below for some restriction on the sleeping time. The `beefly()` function will return `BEE_SLEEP` to signal the fact that the coroutine is sleeping.
-    - `beesleeèing(b)`: returns the number of millisecond that a coroutine has yet to sleep.
-    - `beesync(b)`: makes the function `sleep()` for enough time to allow the coroutine `b` to wake up.
+  - `beeyeldwhile(e)`: this macro will evaluate the expression `e` and yelds if it is `true`. When the coroutine will be resumed, the expression is evaluated again and, if it is still true, it will yeld again. The execution will move to the next line only when the expression `e` will evaluate to `false`;
+  - `beeloopuntil(e)`: this macro will execute its body once, then will evaluate the expression `e`; if it is `true` the execution will move to the next line, otherwise the coroutine will yeld. When the coroutine will be resumed, the body will be executed again and the `e` expression will be re-evaluated, yelding if it is still `false`.
+  - `beesleep(n)`: will make the coroutine sleep for n milliseconds. The coroutine will yeld and if it will be resumed, will yeld again until the specified amount of time passed. See below for some restriction on the sleeping time. The `beefly()` function will return `BEE_SLEEP` to signal the fact that the coroutine is sleeping.
+  - `beesleeèing(b)`: returns the number of millisecond that a coroutine has yet to sleep.
+  - `beesync(b)`: makes the function `sleep()` for enough time to allow the coroutine `b` to wake up.
 
 Note that even if the argument of `beesleep()` is in milliseconds, the actual resolution is in hundrends of second, meaning that the least time a coroutine can sleep is 10 milliseconds. Also, due to implementation details, applications that use `beesleep()` can not be executed continously (i.e. without having them stopped and restarted) for more than 8 months. Should these limitation bee too restrictive, you can always implement your own sync mechanism using `beeyeldwhile()` and `beeloopuntil()`.
 
@@ -352,15 +352,15 @@ typedef struct bee_s {
 ```
 The `bee_s` structure contains the data that is common to all the coroutines:
 
-    - `fly()`: the code that will be executed by the coroutine.
-    - `line`: the entry point where the coroutine must be resumed
-    - `aux`: used ase a spare for various purposes
+  - `fly()`: the code that will be executed by the coroutine.
+  - `line`: the entry point where the coroutine must be resumed
+  - `aux`: used ase a spare for various purposes
 
 Look at the `beeyeld` macro. The `do-while` is there just to ensure safe use of the macro, what's important is that upen yelding we:
 
-    - create the `case` entry point to be used when resuming,
-    - set the `line` value of the coroutine to the entry point
-    - return to the caller.
+  - create the `case` entry point to be used when resuming,
+  - set the `line` value of the coroutine to the entry point
+  - return to the caller.
 
 Consider what happens after the macro expansion of `beeyeld` (assume it happens to be at line `345` in the code):
 
