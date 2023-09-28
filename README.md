@@ -7,7 +7,7 @@
 
 Simple and clean coroutines in C
 
-See the [article on DEV.to](https://dev.to/rdentato/coroutines-in-c-1-2-45ig) for more details and come to our [Discord Server](https://discord.gg/vPgsxHcgXX) if you have any feedback or question.
+See the [article on DEV.to](https://dev.to/rdentato/coroutines-in-c-1-2-45ig) for more details and come to our [Discord Server](https://discord.gg/2wfQ26PXm7) if you have any feedback or question.
 
 Define `BEE_MAIN` before including `bee.h` in one (and only one of) the source files.
 
