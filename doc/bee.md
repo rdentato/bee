@@ -142,6 +142,10 @@ This chapter focuses on the creation and management of coroutines using the "bee
 
 In the "bee" library, coroutines are defined using the `beedef` macro, which generates a coroutine type and its associated function. The macro takes two arguments:
 
+```c
+  beedef(bee_type, ...)
+```
+
 1. `bee_type`: The name of the coroutine type.
 2. `...`: The local variables that represent the state of the coroutine, separated by semicolons.
 
@@ -154,12 +158,18 @@ Within the body, you can refer to the state of the currently executed coroutine 
 ```C
 beedef(counter, int i;)
 {
-  for (bee->i = 0; bee->i < 5; bee-> += 1) {
+  // Initialization code, will be executed only once.
+  printf("Start counting\n");
+
+  for (bee->i = 0; bee->i < 5; bee-> i += 1) {
       printf("Counter: %d\n", i);
       beeyeld;
   }
   
-  beereturn;
+  beereturn {
+    // Cleanup code, if needed
+    printf("Done with counting\n");
+  }
 }
 ```
 
@@ -167,7 +177,7 @@ beedef(counter, int i;)
 To create a new coroutine instance, you can use the `beenew()` macro, which takes as arguments the type of the bee to create.
 
 ```C
-counter my_counter = beenew(counter);
+  counter my_counter = beenew(counter);
 ```
 
 To initialize the state of the newly created coroutine, you can access its local variable directly:
@@ -194,7 +204,7 @@ In this chapter, we will discuss various aspects of controlling the execution fl
 To start or resume the execution of a coroutine, use the `beefly()` function, passing the coroutine instance as an argument:
 
 ```C
-beefly(my_counter);
+  beefly(my_counter);
 ```
 
 The `beefly()` function will return `BEE_READY` if the coroutine has yielded or `BEE_DONE` (`0`) if the coroutine has completed its execution.
